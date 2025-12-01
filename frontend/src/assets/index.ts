@@ -1,0 +1,10 @@
+export { default as VxrIcon } from './icon_vxr_full_2.svg';
+export { default as VnFlag } from './vn-flag.svg';
+export { default as EnFlag } from './en-flag.svg';
+export { default as LeaderboardIcon } from './leader_board.jpg';
+export { default as PickupVexIcon } from './pickup_vex_blue_24dp.svg';
+export { default as DropOffIcon } from './dropoff_new_24dp.svg';
+export { default as EventVex } from './event_vex_blue_24dp.svg';
+export { default as Bus } from './1742899069935.jpeg';
+export { default as IconFlashSale } from './icon-flash-sale.png';
+export { default as FromTo } from './from-to.svg';
