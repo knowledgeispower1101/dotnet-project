@@ -48,6 +48,10 @@ namespace ProductService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ImageKey")
+                        .HasColumnType("text")
+                        .HasColumnName("image_key");
+
                     b.Property<bool>("IsLeaf")
                         .HasColumnType("boolean")
                         .HasColumnName("is_leaf");
@@ -69,10 +73,6 @@ namespace ProductService.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("path");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("text")
-                        .HasColumnName("url");
 
                     b.HasKey("Id");
 

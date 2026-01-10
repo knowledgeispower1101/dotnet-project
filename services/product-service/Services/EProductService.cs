@@ -95,7 +95,7 @@ public class EProductService(AppDbContext context) : IProductService
         };
     }
 
-    public Task<int> UpdateProductAsync(int id, ProductRequest request)
+    public async Task<int> UpdateProductAsync(int id, ProductRequest request)
     {
         var data = new
         {

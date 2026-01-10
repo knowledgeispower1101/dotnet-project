@@ -15,5 +15,5 @@ public class Category
     public string Path { get; set; } = string.Empty;
     public int Level { get; set; }
     public bool IsLeaf { get; set; }
-    public string? Url { get; set; }
+    public string? ImageKey { get; set; }
 }

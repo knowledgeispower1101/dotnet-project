@@ -9,4 +9,6 @@ public interface IStorageService
         string folder,
         long size
     );
+
+    Task DeleteAsync(string objectKey);
 }

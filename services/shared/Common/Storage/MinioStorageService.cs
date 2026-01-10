@@ -1,5 +1,6 @@
 namespace Common.Storage;
 
+using Common.Options;
 using Minio;
 using Minio.DataModel.Args;
 
@@ -9,6 +10,18 @@ public class MinioStorageService(
 {
     private readonly IMinioClient _minio = minio;
     private readonly MinioOptions _options = options;
+
+    public async Task DeleteAsync(string objectKey)
+    {
+        if (string.IsNullOrEmpty(objectKey)) return;
+        bool bucketExists = await _minio.BucketExistsAsync(
+            new BucketExistsArgs().WithBucket(_options.Bucket)
+        );
+        if (!bucketExists) return;
+        await _minio.RemoveObjectAsync(
+            new RemoveObjectArgs().WithBucket(_options.Bucket).WithObject(objectKey)
+        );
+    }
 
     public async Task<string> UploadAsync(
         Stream stream,
@@ -23,12 +36,10 @@ public class MinioStorageService(
             new BucketExistsArgs().WithBucket(_options.Bucket)
         );
 
-        if (!bucketExists)
-        {
-            await _minio.MakeBucketAsync(
+        if (!bucketExists) await _minio.MakeBucketAsync(
                 new MakeBucketArgs().WithBucket(_options.Bucket)
-            );
-        }
+        );
+
 
         await _minio.PutObjectAsync(
             new PutObjectArgs()

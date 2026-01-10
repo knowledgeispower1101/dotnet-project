@@ -5,10 +5,12 @@ using ProductService.Services;
 using ProductService.Services.Interfaces;
 using Minio;
 using Common.Storage;
+using Common.Options;
 var builder = WebApplication.CreateBuilder(args);
 var minioOptions = builder.Configuration.GetSection("Minio").Get<MinioOptions>()!;
 
 builder.Services.AddSingleton(minioOptions);
+builder.Services.AddRedis(builder.Configuration);
 
 builder.Services.AddSingleton(new MinioClient()
     .WithEndpoint(minioOptions.Endpoint)

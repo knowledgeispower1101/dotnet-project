@@ -35,7 +35,7 @@ namespace ProductService.Migrations
                     path = table.Column<string>(type: "text", nullable: false),
                     level = table.Column<int>(type: "integer", nullable: false),
                     is_leaf = table.Column<bool>(type: "boolean", nullable: false),
-                    url = table.Column<string>(type: "text", nullable: true)
+                    image_key = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {

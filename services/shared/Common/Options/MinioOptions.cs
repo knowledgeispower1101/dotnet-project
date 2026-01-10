@@ -1,4 +1,4 @@
-namespace Common.Storage;
+namespace Common.Options;
 
 public class MinioOptions
 {
