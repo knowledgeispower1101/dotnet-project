@@ -52,7 +52,7 @@ public class EProductService(AppDbContext context) : IProductService
 
             product.Variations.Add(variation);
         }
-
+        product.CategoryId = request.CategoryId;
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 

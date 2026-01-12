@@ -5,6 +5,7 @@ public record ProductRequest(
     string Title,
     string Description,
     int? BrandId,
+    int? CategoryId,
     List<ProductModelRequest> Models,
     List<VariationDto> Variation
 );

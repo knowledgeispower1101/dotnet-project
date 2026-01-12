@@ -49,6 +49,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity
+                    .HasOne(c => c.Parent)
+                    .WithMany(c => c.Children)
+                    .HasForeignKey(c => c.ParentId)
+                    .IsRequired(false);
+            entity
+                    .HasMany(category => category.Products)
+                    .WithOne(category => category.CategoryRef)
+                    .HasForeignKey(category => category.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+        });
 
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {

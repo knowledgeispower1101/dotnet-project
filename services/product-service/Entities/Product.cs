@@ -15,6 +15,8 @@ public class Product
     public string Description { get; set; } = string.Empty;
     public int? BrandId { get; set; }
     public Brand? BrandRef { get; set; }
+    public int? CategoryId { get; set; }
+    public Category? CategoryRef { get; set; }
     public ICollection<ProductModel> Models { get; set; } = [];
     public ICollection<ProductAttribute> Attributes { get; set; } = [];
     public ICollection<Variation> Variations { get; set; } = [];

@@ -11,9 +11,9 @@ public class CategoryController(ICategoryService _categoryService) : ControllerB
 {
     private readonly ICategoryService categoryService = _categoryService;
     [HttpPost]
-    public async Task<IActionResult> CreateParentCategoryAdminOnly([FromForm] CategoryRequest request, [FromForm] IFormFile file)
+    public async Task<IActionResult> CreateAndUpdateCategory([FromForm] CategoryRequest request, [FromForm] IFormFile file)
     {
-        int idCategory = await categoryService.CreateParentCategoryAsync(request, file);
+        int idCategory = await categoryService.UpsertCategoryAsync(request, file);
         return Ok(BaseResponse<int>.Ok(idCategory, $"Category with id: {idCategory} is created"));
     }
 
@@ -22,5 +22,11 @@ public class CategoryController(ICategoryService _categoryService) : ControllerB
     {
         var categories = await categoryService.Get();
         return Ok(BaseResponse<CategoryResponse[]>.Ok(categories, "Fetch Data"));
+    }
+    [HttpGet("tree/by-product/{productId}")]
+    public async Task<IActionResult> GetCategoriesTree(int productId)
+    {
+        var categoriesTree = await categoryService.GetCategoryHierachyByProductId(productId);
+        return Ok(BaseResponse<CategoryResponse[]>.Ok([.. categoriesTree], "Fetch Data"));
     }
 }
