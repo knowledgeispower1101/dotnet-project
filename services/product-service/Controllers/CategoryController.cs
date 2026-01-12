@@ -29,4 +29,11 @@ public class CategoryController(ICategoryService _categoryService) : ControllerB
         var categoriesTree = await categoryService.GetCategoryHierachyByProductId(productId);
         return Ok(BaseResponse<CategoryResponse[]>.Ok([.. categoriesTree], "Fetch Data"));
     }
+
+    [HttpGet("menu")]
+    public async Task<IActionResult> GetMenuCategories()
+    {
+        var menuCategories = await categoryService.GetCategoryMenu();
+        return Ok(BaseResponse<CategoryResponse[]>.Ok([.. menuCategories], "Fetch Menu Categories"));
+    }
 }

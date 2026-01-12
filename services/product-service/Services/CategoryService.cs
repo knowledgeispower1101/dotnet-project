@@ -1,6 +1,5 @@
 using Common.Caching;
 using Common.Storage;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ProductService.Dtos.Category;
 using ProductService.Entities;
@@ -10,7 +9,7 @@ namespace ProductService.Services;
 
 public class CategoryService(AppDbContext context, IStorageService storageService, ICacheService cacheService) : ICategoryService
 {
-    private readonly static string PARENT_CATEGORIES_KEY = "categories:parent";
+    private readonly static string PARENT_CATEGORIES_KEY = "categories:menu";
     private readonly static string CATEGORY_ADDRESS_FOLDER = "category";
     private readonly AppDbContext _context = context;
     private readonly IStorageService _storageService = storageService;
@@ -100,37 +99,80 @@ public class CategoryService(AppDbContext context, IStorageService storageServic
         var categories = await _context.Categories
             .AsNoTracking()
             .Select(c => new CategoryResponse(
+                c.Id,
                 c.Name,
                 c.Level,
                 c.IsLeaf,
                 c.ImageKey
             ))
             .ToArrayAsync();
-
-        await _cacheService.SetAsync(
-            PARENT_CATEGORIES_KEY,
-            categories,
-            TimeSpan.FromHours(24)
-        );
         return categories;
     }
 
-    public async Task<ICollection<CategoryResponse>> GetCategoryHierachyByProductId(int ProductId)
+    public async Task<ICollection<CategoryResponse>> GetCategoryHierachyByProductId(int productId)
     {
-        var category = await _context.Products.AsNoTracking().Where(p => p.Id == ProductId).Select(p => p.CategoryRef).FirstOrDefaultAsync() ?? throw new NotFoundException("Product not found");
-        var result = new List<CategoryResponse>();
-        while (category != null)
-        {
-            result.Add(new CategoryResponse(
-                category.Name,
-                category.Level,
-                category.IsLeaf,
-                category.ImageKey
-            ));
-            if (category.ParentId == null) break;
-            category = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == category.ParentId);
-        }
-        result.Reverse();
+        var result = await _context.Database
+            .SqlQueryRaw<CategoryResponse>(@"
+            WITH RECURSIVE category_tree AS (
+                SELECT c.id, c.name, c.level, c.is_leaf, c.image_key, c.parent_id
+                FROM products p
+                JOIN categories c ON p.category_id = c.id
+                WHERE p.id = @productId
+                UNION ALL
+                SELECT parent.id, parent.name, parent.level, parent.is_leaf, parent.image_key, parent.parent_id
+                FROM categories parent
+                JOIN category_tree ct ON ct.parent_id = parent.id
+            )
+            SELECT
+                id,
+                name,
+                level,
+                is_leaf AS ""IsLeaf"",
+                image_key AS ""ImageKey""
+            FROM category_tree
+            ORDER BY level;
+        ",
+            new Npgsql.NpgsqlParameter("productId", productId)
+            )
+            .AsNoTracking()
+            .ToListAsync();
+
+        if (result.Count == 0)
+            throw new NotFoundException("Product not found");
+
         return result;
     }
+
+
+
+    private static string CATEGORY_TREE_BY_PRODUCT_KEY(int productId) => $"categories:tree:product:{productId}";
+
+    public async Task<ICollection<CategoryResponse>> GetCategoryMenu()
+    {
+        var cached = await _cacheService.GetAsync<ICollection<CategoryResponse>>(PARENT_CATEGORIES_KEY);
+        if (cached != null) return cached;
+
+        var result = await _context.Database
+            .SqlQueryRaw<CategoryResponse>(@"
+            SELECT 
+                id,
+                name,
+                level,
+                is_leaf AS ""IsLeaf"",
+                image_key AS ""ImageKey""
+            FROM categories
+            WHERE level = 0
+        ")
+            .AsNoTracking()
+            .ToListAsync();
+
+        await _cacheService.SetAsync(
+            PARENT_CATEGORIES_KEY,
+            result,
+            TimeSpan.FromHours(24)
+        );
+
+        return result;
+    }
+
 }

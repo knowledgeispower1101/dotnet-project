@@ -12,6 +12,7 @@ public record CategoryRequest(
 
 
 public record CategoryResponse(
+   int Id,
     string Name,
     int Level,
     bool IsLeaf,
