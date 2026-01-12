@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '@/services';
 import type { ProductData, SelectedVariations } from '../../features/product/constants';
+import { Container } from '@/components';
+import { ProductBreadCrum } from './components';
+import type { CategoryTree } from './components/ProductBreadCrum';
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [selectedVariations, setSelectedVariations] = useState<SelectedVariations>({});
   const [quantity, setQuantity] = useState<number>(1);
+  const [error, setError] = useState<boolean>(false);
   const [product, setProduct] = useState<ProductData>({
     id: 0,
     title: '',
@@ -16,7 +20,7 @@ const ProductDetailPage = () => {
     models: [],
     variations: [],
   });
-
+  const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
   const images = [
     'https://plus.unsplash.com/premium_photo-1661769750859-64b5f1539aa8?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZHVjdCUyMGltYWdlfGVufDB8fDB8fHww',
     'https://tse3.mm.bing.net/th/id/OIP.9rssJewM8mcVHxy84ucVXgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3',
@@ -57,18 +61,31 @@ const ProductDetailPage = () => {
         console.log(product);
       } catch (err) {
         console.error(err);
+        setError(true);
       }
     };
-
+    const fetchCategoryTree = async () => {
+      try {
+        const res = await api.get(`/categories/tree/by-product/${id}`);
+        setCategoryTree(res.data.data);
+      } catch (error) {
+        console.error(error);
+        setError(true);
+      }
+    };
+    fetchCategoryTree();
     fetchProduct();
   }, [id]);
+  if (error) return 'Error';
   return (
-    // <Container>
-    <>
-      <h1>Category Tree</h1>
-    </>
-    /* <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg p-4">
+    <div className="bg-[#F5F5F5]">
+      <Container>
+        <ProductBreadCrum categoryTree={categoryTree} productTitle={product.title} />
+        <div className="grid lg:grid-cols-2 gap-6 bg-white ">
+          <div className="rounded-lg p-4"></div>
+        </div>
+        {/* <div >
+        <div className="">
           <div className="relative">
             <Badge className="absolute top-4 left-4 bg-orange-500 text-white z-10">SIÊU GIẢM GIÁ</Badge>
             <div className="aspect-square bg-linear-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
@@ -188,25 +205,26 @@ const ProductDetailPage = () => {
             </div>
           )}
         </div>
-      </div>
-      <div className="max-w-7xl mx-auto">
-        <div>
-          <h1>SHOP</h1>
+      </div> */}
+        <div className="max-w-7xl mx-auto">
+          <div>
+            <h1>SHOP</h1>
+          </div>
+          <div>
+            <h1>Product detail</h1>
+          </div>
+          <div>
+            <h1>Product description</h1>
+          </div>
+          <div>
+            <h1>Product rating</h1>
+          </div>
+          <div>
+            <h1>Others product of shop</h1>
+          </div>
         </div>
-        <div>
-          <h1>Product detail</h1>
-        </div>
-        <div>
-          <h1>Product description</h1>
-        </div>
-        <div>
-          <h1>Product rating</h1>
-        </div>
-        <div>
-          <h1>Others product of shop</h1>
-        </div>
-      </div> */
-    // </Container>
+      </Container>
+    </div>
   );
 };
 
