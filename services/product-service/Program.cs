@@ -19,13 +19,6 @@ builder.Services.AddSingleton(new MinioClient()
     .Build()
 );
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
-    options.JsonSerializerOptions.DictionaryKeyPolicy = new SnakeCaseNamingPolicy();
-    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-});
-
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options

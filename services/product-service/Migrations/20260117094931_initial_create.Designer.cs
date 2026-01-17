@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ProductService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260110034139_initial_creatation")]
-    partial class initial_creatation
+    [Migration("20260117094931_initial_create")]
+    partial class initial_create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -139,6 +139,10 @@ namespace ProductService.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("brand_id");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
@@ -156,6 +160,8 @@ namespace ProductService.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("products");
                 });
@@ -301,7 +307,14 @@ namespace ProductService.Migrations
                         .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("ProductService.Entities.Category", "CategoryRef")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("BrandRef");
+
+                    b.Navigation("CategoryRef");
                 });
 
             modelBuilder.Entity("ProductService.Entities.ProductAttribute", b =>
@@ -355,6 +368,8 @@ namespace ProductService.Migrations
             modelBuilder.Entity("ProductService.Entities.Category", b =>
                 {
                     b.Navigation("Children");
+
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("ProductService.Entities.Product", b =>

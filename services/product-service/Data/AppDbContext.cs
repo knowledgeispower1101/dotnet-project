@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using ProductService.Entities;
-using Common.Extensions;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
@@ -63,14 +62,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                     .OnDelete(DeleteBehavior.Restrict);
         });
 
-        foreach (var entity in modelBuilder.Model.GetEntityTypes())
-        {
-            entity.SetTableName(entity.GetTableName()!.ToSnakeCase());
-
-            foreach (var property in entity.GetProperties())
-            {
-                property.SetColumnName(property.Name.ToSnakeCase());
-            }
-        }
     }
 }
